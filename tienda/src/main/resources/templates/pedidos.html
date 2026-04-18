@@ -1,0 +1,329 @@
+    <!DOCTYPE html>
+    <html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lista de pedidos</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            body {
+                background: linear-gradient(135deg, #0f3d2e, #1f7a63, #3dbb8b);
+                color: #333;
+                padding: 20px;
+            }
+
+            .titulo {
+                text-align: center;
+                font-size: 2.5rem;
+                color: #ffffff;
+                margin-bottom: 10px;
+            }
+
+            .subtitulo {
+                text-align: center;
+                color: #d7f5ea;
+                margin-bottom: 30px;
+            }
+
+            .toolbar {
+                text-align: right;
+                margin-bottom: 15px;
+            }
+
+            .btn {
+                padding: 10px 18px;
+                border-radius: 8px;
+                text-decoration: none;
+                color: white;
+                font-weight: bold;
+                transition: 0.3s;
+                border: none;
+                cursor: pointer;
+            }
+
+            .boton-nuevo {
+                background: linear-gradient(135deg, #00c853, #64dd17);
+            }
+
+            .boton-editar {
+                background: linear-gradient(135deg, #2e7d32, #66bb6a);
+            }
+
+            .boton-eliminar {
+                background: linear-gradient(135deg, #c62828, #ef5350);
+            }
+
+            .boton-cancelar {
+                background: linear-gradient(135deg, #546e7a, #90a4ae);
+            }
+
+            .boton-crear {
+                background: linear-gradient(135deg, #00c853, #00e676);
+            }
+
+            .btn:hover {
+                opacity: 0.85;
+                transform: scale(1.05);
+            }
+
+            .tarjeta-tabla {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout:fixed;
+            }
+
+            thead {
+                background: linear-gradient(135deg, #1b5e20, #43a047);
+                color: white;
+            }
+
+            th, td {
+                padding: 12px;
+                text-align: center;
+            }
+
+            tbody tr:nth-child(even) {
+                background-color: #f1f8f6;
+            }
+
+            tbody tr:hover {
+                background-color: #d0f0e6;
+            }
+
+            label {
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            input, select {
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                outline: none;
+            }
+
+            input:focus, select:focus {
+                border-color: #2e7d32;
+            }
+
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.6);
+                display: none;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .overlay:target {
+                display: flex;
+            }
+
+            .overlay > div {
+                background: white;
+                padding: 25px;
+                border-radius: 12px;
+                width: 400px;
+                max-width: 90%;
+                animation: fadeIn 0.3s ease;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-15px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .mensaje-error {
+                background: #fee2e2;
+                color: #b91c1c;
+                border: 1px solid #fecaca;
+                border-radius: 12px;
+                padding: 10px 14px;
+                font-size: 14px;
+                font-weight: 500;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+
+            td.descripcion {
+                width: 250px
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                cursor: pointer;
+            }
+
+
+            .modal-acciones {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+            }
+
+            .confirm-msg {
+                margin: 15px 0;
+                text-align: center;
+            }
+
+            input, textarea, select {
+            width: 100%;
+            }
+
+            textarea {
+            resize: vertical;
+            }
+
+      .form-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .campo.full-width {
+        grid-column: 1 / -1;
+    }
+        </style>
+    </head>
+    <body>
+    <h1 class="titulo">Gestión de Pedidos</h1>
+    <p class="subtitulo">Administra los pedidos registrados en el sistema</p>
+
+    <div class="toolbar">
+        <a href="#modalCrear" class="btn boton-nuevo">Agregar Pedido</a>
+        <a href="/home" class="btn">Volver a Inicio</a>
+    </div>
+
+    <div class="tarjeta-tabla">
+        <table>
+            <thead>
+            <tr>
+                <th>No.</th>
+                <th>Descripcion</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pedidos:${pedido}">
+                <td th:text="${pedidos.idPedido}"></td>
+                <td class="descripcion" th:text="${pedidos.descripcionPedido}"></td>
+                <td th:text="${pedidos.fechaPedido}"></td>
+                <td th:text="${pedidos.totalPedido}"></td>
+                <td th:text="${pedidos.idUsuario}"></td>
+                <td>
+                    <a th:href="@{/pedidos/editar/{id}(id=${pedidos.idPedido})}" class="btn boton-editar">Editar</a>
+                    <a th:href="@{/pedidos/eliminar/{id}(id=${pedidos.idPedido})}" class="btn">Eliminar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modalCrear" class="overlay">
+        <div>
+            <h2>Nuevo Pedido</h2>
+            <form th:action="@{/pedidos/crear}" th:object="${nuevoPedido}" method="post">
+                <div class="form-group">
+                    <div class="campo full-width">
+                        <label>Descripción</label>
+                        <textarea th:field="*{descripcionPedido}" cols="30" rows="10" placeholder="Ingrese la descripción" required></textarea>
+                    </div>
+                    <div class="campo">
+                        <label>Fecha</label>
+                        <input type="date" th:field="*{fechaPedido}" required>
+                    </div>
+                    <div class="campo">
+                        <label>Total</label>
+                        <input type="number" th:field="*{totalPedido}" placeholder="Ingrese el total" required>
+                    </div>
+                    <div class="campo full-width">
+                        <label>Usuario</label>
+                        <input type="number" th:field="*{idUsuario}" placeholder="Ingrese el id del usuario" required>
+                    </div>
+                </div>
+                <div class="modal-acciones">
+                    <a href="/pedidos" class="btn boton-cancelar">Cancelar</a>
+                    <button type="submit" class="btn boton-crear">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${pedidoAEditar != null}" id="modalEditar" class="overlay" style="display:flex;">
+        <div class="modal">
+            <h2>Editar Usuario</h2>
+            <form th:action="@{/pedidos/editar/{id}(id=${pedidoAEditar.idPedido})}" th:object="${pedidoAEditar}" method="post">
+                <div class="form-group">
+                    <div class="campo full-width">
+                        <label>Descripcion</label>
+                        <textarea th:field="*{descripcionPedido}" cols="30" rows="10" placeholder="Ingrese la descripcion" required></textarea>
+                    </div>
+                    <div class="campo">
+                        <label>Fecha</label>
+                        <input type="date" th:field="*{fechaPedido}" required>
+                    </div>
+                    <div class="campo">
+                        <label>Total</label>
+                        <input type="number" th:field="*{totalPedido}" placeholder="Ingrese el total" step="0.01" required>
+                    </div>
+                    <div class="campo full-width">
+                        <label>Usuario</label>
+                        <input type="number" th:field="*{idUsuario}" placeholder="Ingrese el id del usuario", required>
+                    </div>
+                </div>
+                <div class="modal-acciones">
+                    <a href="/pedidos" class="btn boton-cancelar">Cancelar</a>
+                    <button type="submit" class="btn boton-editar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${pedidoAEliminar != null}" id="modalEliminar" class="overlay" style="display:flex;">
+        <div class="modal">
+            <h2>Eliminar Pedido</h2>
+            <p class="confirm-msg">
+                ¿Desea eliminar el pedido?
+                Esta acción no puede ser revertida.
+            </p>
+            <form th:action="@{/pedidos/eliminar/{id}(id=${pedidoAEliminar.idPedido})}" method="post">
+                <div class="modal-acciones">
+                    <a href="/pedidos" class="btn boton-cancelar">Cancelar</a>
+                    <button type="submit" class="btn boton-eliminar">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </body>
+    </html>

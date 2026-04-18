@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de categorías</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f3d2e, #1f7a63, #3dbb8b);
+            color: #333;
+            padding: 20px;
+        }
+
+        .titulo {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #d7f5ea;
+            margin-bottom: 30px;
+        }
+
+        .toolbar {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .boton-nuevo {
+            background: linear-gradient(135deg, #00c853, #64dd17);
+        }
+
+        .boton-editar {
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+        }
+
+        .boton-eliminar {
+            background: linear-gradient(135deg, #c62828, #ef5350);
+        }
+
+        .boton-cancelar {
+            background: linear-gradient(135deg, #546e7a, #90a4ae);
+        }
+
+        .boton-crear {
+            background: linear-gradient(135deg, #00c853, #00e676);
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+            transform: scale(1.05);
+        }
+
+        .tarjeta-tabla {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout:fixed;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1b5e20, #43a047);
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f1f8f6;
+        }
+
+        tbody tr:hover {
+            background-color: #d0f0e6;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .campo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #2e7d32;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay:target {
+            display: flex;
+        }
+
+        .overlay > div {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .mensaje-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        td.descripcion {
+            width: 250px
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+
+        .modal-acciones {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .confirm-msg {
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        input, textarea, select {
+        width: 100%;
+        }
+
+        textarea {
+        resize: vertical;
+        }
+    </style>
+</head>
+<body>
+<h1 class="titulo">Gestion de categorías</h1>
+<p class="subtitulo">Administra las categorías registradas en el sistema</p>
+<div class="toolbar">
+    <a href="#modalCrear" class="btn boton-nuevo">Nuevo Usuario</a>
+    <a href="/home" class="btn">Volver a Inicio</a>
+</div>
+
+<div class="tarjeta-tabla">
+    <table>
+        <thead>
+        <tr>
+            <th>No.</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="categorias:${categoria}">
+            <td th:text="${categorias.idCategoria}"></td>
+            <td class="descripcion" th:text="${categorias.nombreCategoria}"></td>
+            <td th:text="${categorias.descripcionCategoria}"></td>
+            <td>
+                <a th:href="@{/categorias/editar/{id}(id=${categorias.idCategoria})}"
+                   class="btn boton-editar">Editar</a>
+                <a th:href="@{/categorias/eliminar/{id}(id=${categorias.idCategoria})}" class="btn boton-eliminar">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="modalCrear" class="overlay">
+    <div class="modal">
+        <h2>Nueva Categoria</h2>
+        <form th:action="@{/categorias/crear}" th:object="${nuevaCategoria}" method="post">
+            <div class="form-group">
+                <div class="campo">
+                    <label>Nombre</label>
+                    <input type="text" th:field="*{nombreCategoria}" placeholder="Ingrese el nombre de la categoria"
+                           required>
+                </div>
+                <div class="campo">
+                    <label>Descripcion</label>
+                    <textarea th:field="*{descripcionCategoria}" cols="30" rows="10"
+                              placeholder="Ingrese la descripción" required></textarea>
+                </div>
+            </div>
+            <div class="modal-acciones">
+                <a href="/categorias" class="btn boton-cancelar">Cancelar</a>
+                <button type="submit" class="btn boton-crear">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:if="${categoriaAEditar != null}" id="modalEditar" class="overlay" style="display:flex;">
+    <div class="modal">
+        <h2>Editar Categoria</h2>
+        <form th:action="@{/categorias/editar/{id}(id=${categoriaAEditar.idCategoria})}" th:object="${categoriaAEditar}"
+              method="post">
+            <div class="campo">
+                <label>Nombre</label>
+                <input type="text" th:field="*{nombreCategoria}" placeholder="Ingrese el nombre de la categoría"
+                       required>
+            </div>
+            <div class="campo">
+                <label>Descricpión</label>
+                <textarea th:field="*{descripcionCategoria}" cols="30" rows="10" placeholder="Ingrese la descricion"
+                          required></textarea>
+            </div>
+            <div class="modal-acciones">
+                <a href="/categorias" class="btn boton-cancelar">Cancelar</a>
+                <button type="submit" class="btn boton-editar">Editar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:if="${categoriaAEliminar != null}" id="modalEliminar" class="overlay" style="display:flex;">
+    <div class="modal">
+        <h2>Eliminar Usuario</h2>
+        <p class="confirm-msg">
+            ¿Estás seguro de que deseas eliminar la categoría
+            <strong th:text="${categoriaAEliminar.nombreCategoria}"></strong>?
+            Esta acción no se puede deshacer.
+        </p>
+        <form th:action="@{/categorias/eliminar/{id}(id=${categoriaAEliminar.idCategoria})}"
+              th:object="${categoriaAEliminar}" method="post">
+            <div class="modal-acciones">
+                <a href="/categorias" class="btn boton-cancelar">Cancelar</a>
+                <button type="submit" class="btn boton-eliminar">Eliminar</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
